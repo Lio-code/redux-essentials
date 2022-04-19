@@ -3,22 +3,15 @@ import { sub } from 'date-fns'
 
 const myReactions = { thumbsUp: 0, hooray: 0, heart: 0, rocket: 0, eyes: 0 }
 
-const initialState = [
-  {
-    id: '1',
-    title: 'First Post!',
-    content: 'Hello!',
-    date: sub(new Date(), { minutes: 10 }).toISOString(),
-    reactions: myReactions,
-  },
-  {
-    id: '2',
-    title: 'Second Post',
-    content: 'More text',
-    date: sub(new Date(), { minutes: 10 }).toISOString(),
-    reactions: myReactions,
-  },
-]
+const initialState = {
+  posts: [],
+  status: 'idle',
+  error: null,
+}
+
+//the reducer "postAdded" is a special kind with one more section: "prepare". This section is usefull to prepare some data that will need to be used but that will be absent in the initial action dispatched. Here, "prepare" will prepare data for id, date and reactions. The rest (title, content, userId) won't need to be prepared as it will come from the action.payload.
+
+//Unique IDs and other random values should be put in the action, not calculated in the reducer
 
 const postsSlice = createSlice({
   name: 'posts',
@@ -26,9 +19,9 @@ const postsSlice = createSlice({
   reducers: {
     postAdded: {
       reducer(state, action) {
-        state.push(action.payload)
+        state.posts.push(action.payload)
       },
-      prepare(title, content, userId, date) {
+      prepare(title, content, userId) {
         return {
           payload: {
             id: nanoid(),
@@ -43,7 +36,7 @@ const postsSlice = createSlice({
     },
     postUpdated(state, action) {
       const { id, title, content } = action.payload
-      const existingPost = state.find((post) => post.id === id)
+      const existingPost = state.posts.find((post) => post.id === id)
       if (existingPost) {
         existingPost.title = title
         existingPost.content = content
@@ -51,7 +44,7 @@ const postsSlice = createSlice({
     },
     reactionAdded(state, action) {
       const { postId, reaction } = action.payload
-      const existingPost = state.find((post) => post.id === postId)
+      const existingPost = state.posts.find((post) => post.id === postId)
       if (existingPost) {
         existingPost.reactions[reaction]++
       }
@@ -62,3 +55,7 @@ const postsSlice = createSlice({
 export const { postAdded, postUpdated, reactionAdded } = postsSlice.actions
 
 export default postsSlice.reducer
+
+export const selectAllPosts = (state) => state.posts.posts
+export const selectPostById = (state, postId) =>
+  state.posts.posts.find((post) => post.id === postId)
