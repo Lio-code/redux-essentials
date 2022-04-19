@@ -36,3 +36,5 @@ See the section about [deployment](https://facebook.github.io/create-react-app/d
 ## API
 
 Project includes a fake in-memory REST API for our data (configured using the Mock Service Worker mock API tool). The API uses /fakeApi as the base URL for the endpoints, and supports the typical GET/POST/PUT/DELETE HTTP methods for /fakeApi/posts, /fakeApi/users, and fakeApi/notifications. It's defined in src/api/server.js.
+
+Since this is a fake API, the new post won't persist if we reload the page, but if we had a real backend server it would be available next time we reload

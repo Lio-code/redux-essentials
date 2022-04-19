@@ -1,5 +1,4 @@
 import { createSlice, nanoid, createAsyncThunk } from '@reduxjs/toolkit'
-import { sub } from 'date-fns'
 import { client } from '../../api/client'
 
 const myReactions = { thumbsUp: 0, hooray: 0, heart: 0, rocket: 0, eyes: 0 }
@@ -14,6 +13,17 @@ export const fetchPosts = createAsyncThunk('posts/fetchPosts', async () => {
   const response = await client.get('/fakeApi/posts')
   return response.data
 })
+
+export const addNewPost = createAsyncThunk(
+  'posts/addNewPost',
+  // The payload creator receives the partial `{title, content, user}` object
+  async (initialPost) => {
+    // We send the initial data to the fake API server
+    const response = await client.post('/fakeApi/posts', initialPost)
+    // The response includes the complete post object, including unique ID
+    return response.data
+  }
+)
 
 //the reducer "postAdded" is a special kind with one more section: "prepare". This section is usefull to prepare some data that will need to be used but that will be absent in the initial action dispatched. Here, "prepare" will prepare data for id, date and reactions. The rest (title, content, userId) won't need to be prepared as it will come from the action.payload.
 
@@ -69,6 +79,11 @@ const postsSlice = createSlice({
       .addCase(fetchPosts.rejected, (state, action) => {
         state.status = 'failed'
         state.error = action.error.message
+      })
+
+      .addCase(addNewPost.fulfilled, (state, action) => {
+        // We can directly add the new post object to our posts array
+        state.posts.push(action.payload)
       })
   },
 })
